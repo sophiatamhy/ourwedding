@@ -1,0 +1,205 @@
+
+Sophia Tam <sophiatam22@gmail.com>
+下午1:41 (1 分鐘前)
+寄給 sophiatam
+
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Sophia & Kaiho's Wedding Planner</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script>
+tailwind.config = {
+theme: {
+extend: {
+colors: {
+'wedding-green': '#84A59D', /* 柔和的鼠尾草綠 */
+'wedding-yellow': '#F6BD60', /* 雛菊黃 */
+'wedding-bg': '#F7F9F7', /* 非常淡的綠白色背景 */
+}
+}
+}
+}
+</script>
+<style>
+/* 隱藏滾動條，讓標籤列更像 App */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+body { background-color: #F7F9F7; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+</style>
+</head>
+<body class="text-gray-800 antialiased flex justify-center min-h-screen">
+
+<div id="app" class="w-full max-w-md bg-wedding-bg min-h-screen shadow-2xl relative overflow-hidden flex flex-col">
+
+<header class="bg-wedding-green text-white pt-12 pb-6 px-6 rounded-b-[2.5rem] shadow-sm relative z-10">
+<div class="flex justify-between items-center">
+<div>
+<h1 class="text-2xl font-bold tracking-wider">Sophia & Kaiho</h1>
+<p class="text-sm opacity-90 mt-1 flex items-center">
+<span class="mr-1">🌼</span> 我們的戶外婚禮手冊
+</p>
+</div>
+</div>
+</header>
+
+<nav class="flex overflow-x-auto no-scrollbar space-x-3 px-6 py-5 sticky top-0 bg-wedding-bg z-0 -mt-2 pt-6">
+<button v-for="tab in tabs" :key="tab.id"
+@click="activeTab = tab.id"
+:class="['whitespace-nowrap px-4 py-2 rounded-full text-sm font-semibold transition-all duration-300 shadow-sm flex items-center gap-2',
+activeTab === tab.id ? 'bg-wedding-yellow text-white' : 'bg-white text-gray-500 border border-gray-100']">
+<span>{{ tab.icon }}</span> {{ tab.name }}
+</button>
+</nav>
+
+<main class="flex-1 px-6 pb-24 overflow-y-auto">
+
+<div v-show="activeTab === 'todo'" class="space-y-4 animate-fade-in">
+<h2 class="font-bold text-lg text-wedding-green mb-2">待辦事項清單</h2>
+<div v-for="(task, index) in todos" :key="index"
+class="bg-white p-4 rounded-2xl shadow-sm flex items-center gap-3 border-l-4 border-wedding-green">
+<input type="checkbox" v-model="task.done" class="w-5 h-5 accent-wedding-green rounded">
+<span :class="{'line-through text-gray-400': task.done}" class="font-medium text-gray-700">{{ task.text }}</span>
+</div>
+<button @click="addTodo" class="w-full py-3 mt-2 border-2 border-dashed border-wedding-green text-wedding-green rounded-2xl font-semibold">
++ 新增待辦事項
+</button>
+</div>
+
+<div v-show="activeTab === 'moodboard'" class="space-y-4">
+<h2 class="font-bold text-lg text-wedding-green mb-2">佈置靈感板</h2>
+<div class="grid grid-cols-2 gap-3">
+<div class="h-40 bg-gray-200 rounded-2xl overflow-hidden shadow-sm">
+<img src="https://images.unsplash.com/photo-1519225421980-715cb0215aed?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60" class="w-full h-full object-cover" alt="Outdoor wedding">
+</div>
+<div class="h-40 bg-gray-200 rounded-2xl overflow-hidden shadow-sm">
+<img src="https://images.unsplash.com/photo-1606800052052-a08af7148866?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60" class="w-full h-full object-cover" alt="Daisy">
+</div>
+<div class="h-40 bg-gray-200 rounded-2xl overflow-hidden shadow-sm col-span-2">
+<img src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=60" class="w-full h-full object-cover" alt="Wedding tent">
+</div>
+</div>
+</div>
+
+<div v-show="activeTab === 'budget'" class="space-y-4">
+<h2 class="font-bold text-lg text-wedding-green mb-2">預算控制</h2>
+<div class="bg-wedding-green text-white p-5 rounded-2xl shadow-sm text-center">
+<p class="text-sm opacity-80">總支出</p>
+<p class="text-3xl font-bold mt-1">$ {{ totalBudget }}</p>
+</div>
+<div v-for="(item, index) in expenses" :key="index" class="bg-white p-4 rounded-2xl shadow-sm flex justify-between items-center">
+<span class="font-medium text-gray-700">{{ item.name }}</span>
+<span class="text-wedding-yellow font-bold">$ {{ item.cost }}</span>
+</div>
+</div>
+
+<div v-show="activeTab === 'vendors'" class="space-y-4">
+<h2 class="font-bold text-lg text-wedding-green mb-2">合作廠商聯絡簿</h2>
+<div v-for="(vendor, index) in vendors" :key="index" class="bg-white p-4 rounded-2xl shadow-sm">
+<div class="text-xs text-wedding-yellow font-bold mb-1">{{ vendor.category }}</div>
+<div class="font-bold text-gray-800">{{ vendor.name }}</div>
+<div class="text-sm text-gray-500 mt-2 flex items-center gap-2">
+<span>📞</span> {{ vendor.phone }}
+</div>
+</div>
+</div>
+
+<div v-show="activeTab === 'guests'" class="space-y-4">
+<h2 class="font-bold text-lg text-wedding-green mb-2">賓客名單</h2>
+<div v-for="(guest, index) in guests" :key="index" class="bg-white p-4 rounded-2xl shadow-sm flex justify-between items-center">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-wedding-bg flex items-center justify-center text-wedding-green font-bold">
+{{ guest.name.charAt(0) }}
+</div>
+<span class="font-medium text-gray-700">{{ guest.name }}</span>
+</div>
+<span :class="guest.rsvp ? 'text-green-500 bg-green-50' : 'text-orange-400 bg-orange-50'" class="px-3 py-1 text-xs font-bold rounded-full">
+{{ guest.rsvp ? '已出席' : '待確認' }}
+</span>
+</div>
+</div>
+
+<div v-show="activeTab === 'songs'" class="space-y-4">
+<h2 class="font-bold text-lg text-wedding-green mb-2">戶外草地歌單</h2>
+<div v-for="(song, index) in songs" :key="index" class="bg-white p-4 rounded-2xl shadow-sm flex items-center gap-4">
+<div class="w-12 h-12 bg-wedding-yellow text-white rounded-xl flex items-center justify-center text-xl shadow-sm">
+🎵
+</div>
+<div>
+<div class="font-bold text-gray-800">{{ song.title }}</div>
+<div class="text-sm text-gray-500">{{ song.artist }}</div>
+</div>
+</div>
+</div>
+
+</main>
+
+<div class="absolute bottom-4 right-4 text-4xl opacity-20 pointer-events-none">🌼</div>
+<div class="absolute top-40 left-2 text-2xl opacity-20 pointer-events-none">🌼</div>
+</div>
+
+<script>
+const { createApp, ref, computed } = Vue;
+
+createApp({
+setup() {
+const tabs = [
+{ id: 'todo', name: '待辦清單', icon: '📝' },
+{ id: 'moodboard', name: '靈感板', icon: '✨' },
+{ id: 'budget', name: '記帳', icon: '💰' },
+{ id: 'vendors', name: '廠商聯絡', icon: '📞' },
+{ id: 'guests', name: '賓客', icon: '👥' },
+{ id: 'songs', name: '專屬歌單', icon: '🎵' }
+];
+
+const activeTab = ref('todo');
+
+// 模擬資料區
+const todos = ref([
+{ text: '確認攝影師檔期', done: true },
+{ text: '發送 Save the Date', done: false },
+{ text: '挑選戶外帳篷', done: false }
+]);
+
+const expenses = ref([
+{ name: '場地租借', cost: 25000 },
+{ name: '花藝佈置 (小雛菊)', cost: 12000 },
+{ name: '攝影與錄影', cost: 18000 }
+]);
+
+const vendors = ref([
+{ category: '婚禮場地', name: 'Green Garden 戶外場地', phone: '9876 5432' },
+{ category: '花藝設計', name: 'Daisy Florist', phone: '9123 4567' }
+]);
+
+const guests = ref([
+{ name: '陳大文 (David)', rsvp: true },
+{ name: '李小玲 (Ling)', rsvp: false },
+{ name: '王家明 (Ming)', rsvp: true }
+]);
+
+const songs = ref([
+{ title: 'Perfect', artist: 'Ed Sheeran' },
+{ title: 'A Thousand Years', artist: 'Christina Perri' },
+{ title: 'Sugar', artist: 'Maroon 5' }
+]);
+
+const totalBudget = computed(() => {
+return expenses.value.reduce((sum, item) => sum + item.cost, 0).toLocaleString();
+});
+
+const addTodo = () => {
+todos.value.push({ text: '新的待辦事項', done: false });
+};
+
+return {
+tabs, activeTab, todos, expenses, vendors, guests, songs, totalBudget, addTodo
+}
+}
+}).mount('#app')
+</script>
+</body>
+</html>
